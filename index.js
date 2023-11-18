@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -28,6 +28,7 @@ async function run() {
     await client.connect();
 
     const gadgetCollection = client.db('gadgetDB').collection('gadget')
+    const cartCollection = client.db('gadgetDB').collection('cart')
 
     app.get("/gadget", async (req, res) => {
       const cursor = gadgetCollection.find();
@@ -39,8 +40,24 @@ async function run() {
     app.get("/gadget/:brand", async (req, res) => {
       const brand = req.params.brand;
       const products = await gadgetCollection.find({ brand: brand }).toArray();
-      res.json(products)
+      res.json(products);
+    });
+
+
+    app.get("/cart", async (req, res) => {
+      const cursor = cartCollection.find();
+      const result = await cursor.toArray();
+      res.send(result)
     })
+
+
+    // app.get("/gadget/:id", async (req, res) => {
+    //   const id = req.params.id;
+    //   const query = { _id: new ObjectId(id) }
+    //   const result = await gadgetCollection.findOne(query);
+    //   res.send(result);
+    // });
+
 
     app.post("/gadget", async (req, res) => {
       const newProduct = req.body;
@@ -48,6 +65,15 @@ async function run() {
       const result = await gadgetCollection.insertOne(newProduct);
       res.send(result);
     })
+
+    app.post("/cart", async (req, res) => {
+      const cartProduct = req.body;
+      console.log(cartProduct);
+      const result = await cartCollection.insertOne(cartProduct);
+      res.send(result)
+    })
+
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
