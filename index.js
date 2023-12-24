@@ -25,18 +25,18 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const gadgetCollection = client.db('gadgetDB').collection('gadget')
     const cartCollection = client.db('gadgetDB').collection('cart')
 
-    app.get("/gadget", async (req, res) => {
+    app.get("/gadgets", async (req, res) => {
       const cursor = gadgetCollection.find();
       const result = await cursor.toArray();
       res.send(result);
     })
 
-    app.get("/gadget/:brand", async (req, res) => {
+    app.get("/gadgets/:brand", async (req, res) => {
       const brand = req.params.brand;
       const products = await gadgetCollection.find({ brand: brand }).toArray();
       res.json(products);
@@ -50,12 +50,12 @@ async function run() {
 
     app.get("/gadget/:id", async (req, res) => {
       const id = req.params.id;
-      const query = { _id: (id) }
+      const query = { _id: new ObjectId(id) }
       const result = await gadgetCollection.findOne(query);
       res.send(result);
     });
 
-    app.post("/gadget", async (req, res) => {
+    app.post("/gadgets", async (req, res) => {
       const newProduct = req.body;
       console.log(newProduct);
       const result = await gadgetCollection.insertOne(newProduct);
@@ -69,7 +69,7 @@ async function run() {
       res.send(result)
     })
 
-    app.put("/gadget/:id", async (req, res) => {
+    app.put("/gadgets/:id", async (req, res) => {
       const id = req.params.id;
       const query = {_id: new ObjectId(id)}
       const updateData = req.body;
